@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+{% import "bootstrap/wtf.html" as wtf %}
+{% import "bootstrap/fixes.html" as fixes %}
+{% import "bootstrap/utils.html" as util %}
+
+{% block head %}
+{{super()}}
+{{fixes.ie8()}}
+{% endblock %}
+
+{% block content %}
+{{util.flashed_messages(dismissible=True)}}
+<div class="container">
+  <h1>Video Streaming Demonstration</h1>
+  <img id="original" src="">
+  <img id="imageai" src="">
+</div>
+{% endblock %}
+
+{% block scripts %}
+{{super()}}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/1.7.3/socket.io.min.js"></script>
+<script type="text/javascript">
+  var socket = io.connect('http://' + document.domain + ':' + location.port);
+
+  socket.on('connect', function () {
+    console.log('connected')
+    socket.emit('get original')
+    socket.emit('get imageai')
+  })
+
+  socket.on('my response', function (msg) {
+    console.log(msg)
+  })
+  socket.on('original', function (data) {
+    console.log('original image received')
+    if (data) {
+      $("#original").attr("src", data.image);
+    }
+    socket.emit('get original')
+  })
+  socket.on('imageai', function (data) {
+    console.log('imageai image received')
+    if (data) {
+      $("#imageai").attr("src", data.image);
+    }
+    socket.emit('get imageai')
+  })
+</script>
+{% endblock %}
