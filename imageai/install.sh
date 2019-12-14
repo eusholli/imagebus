@@ -6,5 +6,5 @@ virtualenv venv
 
 pip install -r requirements.txt
 
-curl -L -o fuck.h5 https://github.com/OlafenwaMoses/ImageAI/releases/download/1.0/yolo.h5
+curl -L -o yolo.h5 https://github.com/OlafenwaMoses/ImageAI/releases/download/1.0/yolo.h5
 
