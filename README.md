@@ -14,7 +14,7 @@ All implementation is in Python 3 but due to the neutrality of Kafka, all langua
 
 ## Prerequisites
 
-**NOTE - This code is currently NOT compatibable with Python 3.8 due to using TensorFlow 1 release**
+**NOTE - This code is currently NOT compatibable with Python 3.8 due to [imageai ilbrary currently using TensorFlow 1 release](https://github.com/OlafenwaMoses/ImageAI/issues/367)**
 
 ```
 # Python 3.7.3
