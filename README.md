@@ -14,10 +14,12 @@ All implementation is in Python 3 but due to the neutrality of Kafka, all langua
 
 ## Prerequisites
 
+**NOTE - This code is currently NOT compatibable with Python 3.8 due to using TensorFlow 1 release**
+
 ```
-# Python 3.6
+# Python 3.7.3
 $ python3 --version
-Python 3.6.5
+Python 3.7.3
 
 # Docker
 $ docker --version
@@ -57,9 +59,22 @@ $ git clone https://github.com/eusholli/imagebus
 $ cd imagebus/
 ```
 
+An overall install.sh file has been provided in the main project directory (imagebus) **OR** each process can be installed seperately.
+
+### To Install all processes in one go
+
+While in the main project directory (imagebus)
+
+```
+$ chmod 755 install.sh
+$ ./install.sh
+```
+
+### To install each process seperately
+
 There are 5 main processes in the repo
 
-### Consumer
+#### Consumer
 
 Consumer is a python flask/socketio app, app.py, that pulls the messages from the Kafka bus and makes them available via a webserver on localhost:5000. To install execute the following
 
@@ -70,7 +85,7 @@ $ ./install.sh
 $ cd ..
 ```
 
-### Producer
+#### Producer
 
 Producer is a python executable, producer.py, that grabs images from a video stream, either from a local video file if passed as an argument, or the embedded camera if no argument passed, and publishes the frame to the kafka bus. It is set to pass every 30th frame to the Kafka bus from the video feed. To install execute the following
 
@@ -81,9 +96,9 @@ $ ./install.sh
 $ cd ..
 ```
 
-### ImageAI
+#### ImageAI
 
-ImageAI contains the executables that take the source frames from the producer, analyses them for any inclusion of identifiable features and publishes the wanted result back onto the kafka message bus based on the wanted function of the processing. The object identification uses the open source [imageAI](https://imageai.org) library that can identify up to 1000 objects from 80 different types in any one frame. OpenCV is used to manipulate the images for redaction implementation. There are two examples. imageaiProcessor.py takes the original captured frame, identifies objects and creates a new image with boxes around the identified objects and also outputs the details of the indentified objects. redactionProcessor.py takes the identified objects, looks for people and publishes a new image that blacks them out. To install execute the following
+ImageAI contains the executables that take the source frames from the producer, analyses them for any inclusion of identifiable features and publishes the wanted result back onto the kafka message bus based on the wanted function of the processing. The object identification uses the open source [imageAI](https://imageai.readthedocs.io/en/latest/) library that can identify up to 1000 objects from 80 different types in any one frame. OpenCV is used to manipulate the images for redaction implementation. There are two examples. imageaiProcessor.py takes the original captured frame, identifies objects and creates a new image with boxes around the identified objects and also outputs the details of the indentified objects. redactionProcessor.py takes the identified objects, looks for people and publishes a new image that blacks them out. To install execute the following
 
 ```
 $ cd imageai
@@ -92,7 +107,7 @@ $ ./install.sh
 $ cd ..
 ```
 
-### kafka
+#### kafka
 
 Kafka runs in a docker container. No additional execution should be required.
 
