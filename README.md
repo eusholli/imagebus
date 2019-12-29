@@ -16,7 +16,7 @@ All implementation is in Python 3 but due to the neutrality of Kafka, all langua
 
 **NOTE - This code is currently NOT compatibable with Python 3.8 due to [imageai ilbrary currently using TensorFlow 1 release](https://github.com/OlafenwaMoses/ImageAI/issues/367)**
 
-```
+```bash
 # Python 3.7.3
 $ python3 --version
 Python 3.7.3
@@ -53,10 +53,10 @@ Operating system:
 
 To get your code up and running, first let's clone the repo locally then compose the project:
 
-```
-$ cd <PATH_OF_CHOICE>
-$ git clone https://github.com/eusholli/imagebus
-$ cd imagebus/
+```bash
+cd <PATH_OF_CHOICE>
+git clone https://github.com/eusholli/imagebus
+cd imagebus/
 ```
 
 An overall install.sh file has been provided in the main project directory (imagebus) **OR** each process can be installed seperately.
@@ -65,7 +65,7 @@ An overall install.sh file has been provided in the main project directory (imag
 
 While in the main project directory (imagebus)
 
-```
+```bash
 $ chmod 755 install.sh
 $ ./install.sh
 ```
@@ -78,33 +78,33 @@ There are 5 main processes in the repo
 
 Consumer is a python flask/socketio app, app.py, that pulls the messages from the Kafka bus and makes them available via a webserver on localhost:5000. To install execute the following
 
-```
-$ cd consumer
-$ chmod 755 install.sh
-$ ./install.sh
-$ cd ..
+```bash
+cd consumer
+chmod 755 install.sh
+./install.sh
+cd ..
 ```
 
 #### Producer
 
 Producer is a python executable, producer.py, that grabs images from a video stream, either from a local video file if passed as an argument, or the embedded camera if no argument passed, and publishes the frame to the kafka bus. It is set to pass every 30th frame to the Kafka bus from the video feed. To install execute the following
 
-```
-$ cd producer
-$ chmod 755 install.sh
-$ ./install.sh
-$ cd ..
+```bash
+cd producer
+chmod 755 install.sh
+./install.sh
+cd ..
 ```
 
 #### ImageAI
 
 ImageAI contains the executables that take the source frames from the producer, analyses them for any inclusion of identifiable features and publishes the wanted result back onto the kafka message bus based on the wanted function of the processing. The object identification uses the open source [imageAI](https://imageai.readthedocs.io/en/latest/) library that can identify up to 1000 objects from 80 different types in any one frame. OpenCV is used to manipulate the images for redaction implementation. There are two examples. imageaiProcessor.py takes the original captured frame, identifies objects and creates a new image with boxes around the identified objects and also outputs the details of the indentified objects. redactionProcessor.py takes the identified objects, looks for people and publishes a new image that blacks them out. To install execute the following
 
-```
-$ cd imageai
-$ chmod 755 install.sh
-$ ./install.sh
-$ cd ..
+```bash
+cd imageai
+chmod 755 install.sh
+./install.sh
+cd ..
 ```
 
 #### kafka
@@ -119,33 +119,33 @@ All processes need to run in parallel and are best started in individual termina
 
 Kafka runs in its own docker container and does not need any additional config. To run, stay in the root directory of the project and execute
 
-```
-$ docker-compose up
+```bash
+docker-compose up
 ```
 
 ### Producer Shell
 
-```
-$ cd producer
-$ . venv/bin/activate
-$ python producer.py
+```bash
+cd producer
+. venv/bin/activate
+python producer.py
 ```
 
 ### Imageai Shell
 
-```
-$ cd imageai
-$ . venv/bin/activate
-$ python imageaiProcessor.py &
-$ python redactionProcessor.py &
+```bash
+cd imageai
+. venv/bin/activate
+python imageaiProcessor.py &
+python redactionProcessor.py &
 ```
 
 ### Consumer Shell
 
-```
-$ cd consumer
-$ . venv/bin/activate
-$ python app.py
+```bash
+cd consumer
+. venv/bin/activate
+python app.py
 ```
 
 To view the result go to [https://localhost:5000](https://localhost:5000)
