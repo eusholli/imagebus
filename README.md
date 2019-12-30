@@ -150,6 +150,8 @@ If no argument is passed to producer.py, the webcam of the macbook is opened as 
  python producer.py rtsp://192.168.0.13
 ```
 
+For iPhone users it is possible download the [Live Reporter app](https://apps.apple.com/us/app/live-reporter-security-camera/id996017825) for free and use the iPhone as the video streaming source. The application provides an RTSP address once running.
+
 ### Imageai Shell
 
 ```bash
