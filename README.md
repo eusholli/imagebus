@@ -14,7 +14,7 @@ All implementation is in Python 3 but due to the neutrality of Kafka, all langua
 
 ## Prerequisites
 
-**NOTE - This code is currently NOT compatibable with Python 3.8 due to [imageai ilbrary currently using TensorFlow 1 release](https://github.com/OlafenwaMoses/ImageAI/issues/367)**
+**RELEASE-NOTE-1 - This code is currently NOT compatibable with Python 3.8 due to [imageai ilbrary currently using TensorFlow 1 release](https://github.com/OlafenwaMoses/ImageAI/issues/367)**
 
 ```bash
 # Python 3.7.3
@@ -45,9 +45,11 @@ $ virtualenv --version
 
 ## Tested Environment
 
-Operating system:
+### Operating system
 
 - macOS Mojave 10.14.6
+
+**RELEASE-NOTE-2** - The author has only validated this works in a macbook environment. There may be incompatibilities with Windows and/or Linux
 
 ## Installing
 
@@ -66,8 +68,17 @@ An overall install.sh file has been provided in the main project directory (imag
 While in the main project directory (imagebus)
 
 ```bash
-$ chmod 755 install.sh
-$ ./install.sh
+chmod 755 install.sh
+./install.sh
+```
+
+### To Stop all processes in one go
+
+While in the main project directory (imagebus)
+
+```bash
+chmod 755 stop.sh
+./stop.sh
 ```
 
 ### To install each process seperately
@@ -129,6 +140,14 @@ docker-compose up
 cd producer
 . venv/bin/activate
 python producer.py
+```
+
+If no argument is passed to producer.py, the webcam of the macbook is opened as the video source. Examples of other types of video source can be rtsp streams, rtmp streams and video files stored directly on disk. For example...
+
+```bash
+ python producer.py ./friends.mp4
+ python producer.py rtmp://fms.105.net/live/rmc1
+ python producer.py rtsp://192.168.0.13
 ```
 
 ### Imageai Shell
