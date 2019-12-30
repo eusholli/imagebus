@@ -2,14 +2,19 @@
 {% block content %}
 <h2> Feature Identification</h2>
 <button id="pause_button" class="btn btn-default btn-primary">Pause</button>
-<h3>Original Image: <span id="original_time"></span></h3>
-<div>
-  <img id="original" src="" class="img-responsive" alt="Responsive image">
-</div>
-<h3>Processed Image: <span id="imageai_time"></span></h3>
-<p>Source Image: <span id="source_time"></span></p>
-<div>
-  <img id="imageai" src="" class="img-responsive" alt="Responsive image">
+<div class="row">
+  <div class="col-xs-6">
+    <p>Original Image: <span id="original_time"></span></p>
+    <div>
+      <img id="original" src="" class="img-responsive" alt="Responsive image">
+    </div>
+  </div>
+  <div class="col-xs-6">
+    <p>Processed Image: <span id="source_time"></span></p>
+    <div>
+      <img id="imageai" src="" class="img-responsive" alt="Responsive image">
+    </div>
+  </div>
 </div>
 {% endblock %}
 
@@ -44,7 +49,6 @@
   socket.on('imageai', function (data) {
     console.log('imageai image received')
     if (update && data) {
-      $("#imageai_time").text(data.time);
       $("#source_time").text(data.original_time);
       $("#imageai").attr("src", data.image);
     }
