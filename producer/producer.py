@@ -111,7 +111,7 @@ if __name__ == "__main__":
     parser.add_argument(
         "-n",
         "--name",
-        help='set the name of the video source, defaults to "source" if missing',
+        help='set the display name of the video source, defaults to "source" if missing',
     )
 
     parser.add_argument(

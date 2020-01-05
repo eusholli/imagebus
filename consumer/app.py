@@ -55,9 +55,9 @@ def home():
     return render_template("index.html")
 
 
-@app.route("/details")
-def details():
-    return render_template("details.html")
+@app.route("/imageai")
+def imageai():
+    return render_template("imageai.html")
 
 
 @app.route("/redaction")

@@ -81,6 +81,7 @@ class FrameDetails:
         )
 
         return {
+            "name": self.name,
             "image": encoded_image,
             "time": self.datetimefilter(self.dateTime),
             "frame_reference": self.frameReference,

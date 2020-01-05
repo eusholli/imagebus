@@ -115,6 +115,13 @@ if __name__ == "__main__":
         + ImagebusTopic.SOURCE_FRAME.name,
     )
 
+    parser.add_argument(
+        "-n",
+        "--name",
+        help='set the display name of this redaction process, defaults to "redactionProcessor" if missing',
+        default="imageaiProcessor",
+    )
+
     args = parser.parse_args()
 
     # Start up consumer
@@ -130,5 +137,5 @@ if __name__ == "__main__":
         value_serializer=lambda v: jsonpickle.encode(v).encode("utf-8"),
     )
 
-    frameDetails = FrameDetails(name="imageaiProcessor", topic=args.topic)
+    frameDetails = FrameDetails(name=args.name, topic=args.topic)
     analyzeImages(consumer, producer, frameDetails)

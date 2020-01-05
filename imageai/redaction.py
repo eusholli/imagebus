@@ -46,7 +46,7 @@ def redactImages(consumer, producer, frameDetails, redactedObjects):
                     object_type = eachObject["name"]
 
                     if object_type in redactedObjects:
-                        eachObject['redacted'] = True
+                        eachObject["redacted"] = True
                         print(object_type + " to be redacted...")
                         start_point = (
                             eachObject["position"][0],
@@ -113,6 +113,13 @@ if __name__ == "__main__":
         + ImagebusTopic.IMAGEAI_FRAME.name,
     )
 
+    parser.add_argument(
+        "-n",
+        "--name",
+        help='set the display name of this redaction process, defaults to "redactionProcessor" if missing',
+        default="redactionProcessor",
+    )
+
     args = parser.parse_args()
     print(args.redactedObjects)
 
@@ -129,5 +136,5 @@ if __name__ == "__main__":
         value_serializer=lambda v: jsonpickle.encode(v).encode("utf-8"),
     )
 
-    frameDetails = FrameDetails(name="redaction", topic=args.topic)
+    frameDetails = FrameDetails(name=args.name, topic=args.topic)
     redactImages(consumer, producer, frameDetails, args.redactedObjects)
