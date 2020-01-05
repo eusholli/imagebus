@@ -139,7 +139,7 @@ docker-compose up
 ```bash
 cd producer
 . venv/bin/activate
-python producer.py
+python producer.py WEBCAM
 ```
 
 If special argument WEBCAM is passed to producer.py, the webcam of the macbook is opened as the video source. Examples of other types of video source can be rtsp streams, rtmp streams and video files stored directly on disk. For example...
@@ -188,6 +188,8 @@ optional arguments:
   -i INPUT, --input INPUT
                         set the topic name for reading the incoming feed,
                         defaults to SOURCE_FRAME
+  -n NAME, --name NAME  set the display name of this object detection process,
+                        defaults to "imageaiProcessor" if missing
 
 $ python redactionProcessor.py -h
 usage: redaction [-h] [-t TOPIC] [-i INPUT]
@@ -206,6 +208,8 @@ optional arguments:
   -i INPUT, --input INPUT
                         set the topic name for reading the incoming feed,
                         defaults to IMAGEAI_FRAME
+  -n NAME, --name NAME  set the display name of this redaction process,
+                        defaults to "redactionProcessor" if missing
 ```
 
 ### Consumer Shell

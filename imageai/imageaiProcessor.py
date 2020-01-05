@@ -118,7 +118,7 @@ if __name__ == "__main__":
     parser.add_argument(
         "-n",
         "--name",
-        help='set the display name of this redaction process, defaults to "redactionProcessor" if missing',
+        help='set the display name of this object detection process, defaults to "imageaiProcessor" if missing',
         default="imageaiProcessor",
     )
 
