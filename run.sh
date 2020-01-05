@@ -16,14 +16,6 @@ python app.py &
 deactivate
 cd ..
 
-echo "Starting producer"
-cd producer
-. venv/bin/activate
-python producer.py &
-deactivate
-cd ..
-
-echo "Starting imageaiProcessor"
 cd imageai
 . venv/bin/activate
 python imageaiProcessor.py &
@@ -33,4 +25,12 @@ python redaction.py &
 deactivate
 cd ..
 
+echo "Starting producer"
+cd producer
+. venv/bin/activate
+python producer.py WEBCAM &
+deactivate
+cd ..
+
+echo "Starting imageaiProcessor"
 echo "All running..."

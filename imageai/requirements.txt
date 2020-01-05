@@ -19,6 +19,7 @@ imageai==2.1.5
 isort==4.3.21
 itsdangerous==1.1.0
 Jinja2==2.10.3
+jsonpickle==1.2
 kafka-python==1.4.7
 Keras==2.3.1
 Keras-Applications==1.0.8
@@ -53,7 +54,6 @@ tensorflow==1.15.0
 tensorflow-estimator==1.15.1
 termcolor==1.1.0
 typed-ast==1.4.0
-u-msgpack-python==2.5.2
 urllib3==1.25.7
 Werkzeug==0.16.0
 wrapt==1.11.2

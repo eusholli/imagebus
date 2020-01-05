@@ -142,12 +142,30 @@ cd producer
 python producer.py
 ```
 
-If no argument is passed to producer.py, the webcam of the macbook is opened as the video source. Examples of other types of video source can be rtsp streams, rtmp streams and video files stored directly on disk. For example...
+If special argument WEBCAM is passed to producer.py, the webcam of the macbook is opened as the video source. Examples of other types of video source can be rtsp streams, rtmp streams and video files stored directly on disk. For example...
 
 ```bash
  python producer.py ./friends.mp4
  python producer.py rtmp://fms.105.net/live/rmc1
  python producer.py rtsp://192.168.0.13
+ $ python -h
+ usage: producer [-h] [-f VALUE] [-n NAME] [-t TOPIC] URL | WEBCAM
+
+start sampling a video source
+
+positional arguments:
+  URL | WEBCAM          the video source, either a media url(rtsp, rtmp) or
+                        special string 'webcam'
+
+optional arguments:
+  -h, --help            show this help message and exit
+  -f VALUE, --frame VALUE
+                        process "1 every VALUEth frame fetched"
+  -n NAME, --name NAME  set the name of the video source, defaults to "source"
+                        if missing
+  -t TOPIC, --topic TOPIC
+                        set the topic name for publishing the feed, defaults
+                        to SOURCE_FRAME
 ```
 
 For iPhone users it is possible download the [Live Reporter app](https://apps.apple.com/us/app/live-reporter-security-camera/id996017825) for free and use the iPhone as the video streaming source. The application provides an RTSP address once running.
@@ -157,8 +175,37 @@ For iPhone users it is possible download the [Live Reporter app](https://apps.ap
 ```bash
 cd imageai
 . venv/bin/activate
-python imageaiProcessor.py &
-python redactionProcessor.py &
+$ python imageaiProcessor.py -h
+usage: imageaiProcessor [-h] [-t TOPIC] [-i INPUT]
+
+start image recognition on incoming frames
+
+optional arguments:
+  -h, --help            show this help message and exit
+  -t TOPIC, --topic TOPIC
+                        set the topic name for publishing the feed, defaults
+                        to IMAGEAI_FRAME
+  -i INPUT, --input INPUT
+                        set the topic name for reading the incoming feed,
+                        defaults to SOURCE_FRAME
+
+$ python redactionProcessor.py -h
+usage: redaction [-h] [-t TOPIC] [-i INPUT]
+                 [redactedObjects [redactedObjects ...]]
+
+start redacting incoming frames
+
+positional arguments:
+  redactedObjects       list of objects to be redacted ex. person cup
+
+optional arguments:
+  -h, --help            show this help message and exit
+  -t TOPIC, --topic TOPIC
+                        set the topic name for publishing the feed, defaults
+                        to REDACTION_FRAME
+  -i INPUT, --input INPUT
+                        set the topic name for reading the incoming feed,
+                        defaults to IMAGEAI_FRAME
 ```
 
 ### Consumer Shell

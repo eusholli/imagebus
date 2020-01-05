@@ -1,16 +1,16 @@
 {% extends "layout.html" %}
 {% block content %}
-<h2> Feature Identification</h2>
+<h3> Live Feeds</h3>
 <button id="pause_button" class="btn btn-default btn-primary">Pause</button>
 <div class="row">
   <div class="col-xs-6">
-    <p>Original Image: <span id="original_time"></span></p>
+    <p>Original Image: <span id="original_frame_reference"></span> - <span id="original_time"></span></p>
     <div>
       <img id="original" src="" class="img-responsive" alt="Responsive image">
     </div>
   </div>
   <div class="col-xs-6">
-    <p>Processed Image: <span id="source_time"></span></p>
+    <p>Processed Image: <span id="imageai_frame_reference"></span> - <span id="source_time"></span></p>
     <div>
       <img id="imageai" src="" class="img-responsive" alt="Responsive image">
     </div>
@@ -39,8 +39,9 @@
   socket.on('original', function (data) {
     console.log('original image received')
     if (update && data) {
-      $("#original_time").text(data.time);
-      $("#original").attr("src", data.image);
+      $("#original_time").text(data.from.time);
+      $("#original_frame_reference").text(data.from.frame_reference);
+      $("#original").attr("src", data.from.image);
     }
     if (update) {
       socket.emit('get original')
@@ -49,8 +50,9 @@
   socket.on('imageai', function (data) {
     console.log('imageai image received')
     if (update && data) {
-      $("#source_time").text(data.original_time);
-      $("#imageai").attr("src", data.image);
+      $("#source_time").text(data.to.time);
+      $("#imageai_frame_reference").text(data.to.frame_reference);
+      $("#imageai").attr("src", data.to.image);
     }
 
     if (update) {

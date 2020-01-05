@@ -1,96 +1,82 @@
+import traceback
 import io
-import numpy as np
 import sys
 import time
+import numpy as np
 import cv2
-import umsgpack
 import datetime
+import jsonpickle
+import argparse
 
-from imageai.Detection import ObjectDetection
 from kafka import KafkaProducer
 from kafka import KafkaConsumer
 
-import traceback
-
-in_topic = "distributed-video1"
-redacted_objects = ['person']
-out_topic = "redacted-video1"
-# out_topic = "imageai-video1"
+sys.path.append("../common")
+from imagebusutil import FrameDetails, ImagebusTopic  # noqa
 
 
-detector = ObjectDetection()
-detector.setModelTypeAsYOLOv3()
-detector.setModelPath("yolo.h5")
-
-detector.loadModel()
-
-
-def analyzeImages():
+def redactImages(consumer, producer, frameDetails, redactedObjects):
     """
-    Start analyzing images
+    Start redacting images
     """
-    print('Start analyzing images...')
-
-    # Start up consumer
-    consumer = KafkaConsumer(in_topic, bootstrap_servers=['localhost:9092'],
-                             value_deserializer=lambda m: umsgpack.unpackb(m))
-
-    # Start up producer
-    producer = KafkaProducer(bootstrap_servers='localhost:9092',
-                             value_serializer=lambda v: umsgpack.packb(v))
+    print("Start redacting images...")
 
     try:
-        while(True):
+        frameReference = 0
+        totalAnalysisTime = 0
+        # Black color in BGR
+        color = (0, 0, 0)
+        # Line thickness of 2 px
+        thickness = -1
+
+        while True:
             for msg in consumer:
-                byteStream = io.BytesIO(msg.value['image'])
-                originalTime = msg.value['time']
+                parent = msg.value
+                frameReference += 1
+                byteStream = io.BytesIO(parent.image)
                 image = np.asarray(bytearray(byteStream.read()), dtype="uint8")
                 image = cv2.imdecode(image, cv2.IMREAD_UNCHANGED)
 
-                imageai_frame, detection = detector.detectObjectsFromImage(
-                    input_image=image, input_type='array', output_image_path="./result.jpg", output_type='array')
-                imageTime = datetime.datetime.now()
-
-                # Black color in BGR
-                color = (0, 0, 0)
-
-                # Line thickness of 2 px
-                thickness = -1
+                beforeDetection = time.process_time()
 
                 print("--------------------------------")
-                identified_objects = []
-                print(imageTime)
-                for eachObject in detection:
-                    object_type = eachObject["name"]
-                    print(eachObject["name"], " : ", eachObject["percentage_probability"],
-                          " : ", eachObject["box_points"])
-                    identified_objects.append(
-                        {'name': eachObject["name"],
-                         'percentage_probability': eachObject["percentage_probability"],
-                         'position': [int(eachObject["box_points"][0]),
-                                      int(eachObject["box_points"][1]),
-                                      int(eachObject["box_points"][2]),
-                                      int(eachObject["box_points"][3])]})
 
-                    if (object_type in redacted_objects):
+                details = parent.details
+                for eachObject in details:
+                    object_type = eachObject["name"]
+
+                    if object_type in redactedObjects:
+                        eachObject['redacted'] = True
                         print(object_type + " to be redacted...")
                         start_point = (
-                            eachObject["box_points"][0], eachObject["box_points"][1])
+                            eachObject["position"][0],
+                            eachObject["position"][1],
+                        )
                         end_point = (
-                            eachObject["box_points"][2], eachObject["box_points"][3])
-                        imageai_frame = cv2.rectangle(imageai_frame, start_point,
-                                                      end_point, color, thickness)
+                            eachObject["position"][2],
+                            eachObject["position"][3],
+                        )
+                        image = cv2.rectangle(
+                            image, start_point, end_point, color, thickness
+                        )
 
                 print("--------------------------------\n\r")
 
-                # Convert image to jpg
-                ret, buffer = cv2.imencode('.jpg', imageai_frame)
+                detectionTime = time.process_time() - beforeDetection
+                totalAnalysisTime += detectionTime
 
+                # Convert image to jpg
+                ret, buffer = cv2.imencode(".jpg", image)
                 # Convert to bytes and send to kafka
-                producer.send(out_topic, {'image': buffer.tobytes(),
-                                          'time': imageTime,
-                                          'original_time': originalTime,
-                                          'details': identified_objects})
+                frameDetails.setChildFrame(
+                    frameReference,
+                    buffer.tobytes(),
+                    details,
+                    parent,
+                    round(detectionTime, 4),
+                    round(totalAnalysisTime / frameReference, 4),
+                )
+                producer.send(frameDetails.topic, frameDetails)
 
     except Exception as e:
         traceback.print_exc()
@@ -98,6 +84,50 @@ def analyzeImages():
         sys.exit(1)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
 
-    analyzeImages()
+    parser = argparse.ArgumentParser(
+        prog="redaction", description="start redacting incoming frames"
+    )
+
+    parser.add_argument(
+        "redactedObjects",
+        nargs="*",
+        help="list of objects to be redacted ex. person cup",
+        default=["person"],
+    )
+
+    parser.add_argument(
+        "-t",
+        "--topic",
+        default=ImagebusTopic.REDACTION_FRAME.name,
+        help="set the topic name for publishing the feed, defaults to "
+        + ImagebusTopic.REDACTION_FRAME.name,
+    )
+
+    parser.add_argument(
+        "-i",
+        "--input",
+        default=ImagebusTopic.IMAGEAI_FRAME.name,
+        help="set the topic name for reading the incoming feed, defaults to "
+        + ImagebusTopic.IMAGEAI_FRAME.name,
+    )
+
+    args = parser.parse_args()
+    print(args.redactedObjects)
+
+    # Start up consumer
+    consumer = KafkaConsumer(
+        args.input,
+        bootstrap_servers=["localhost:9092"],
+        value_deserializer=lambda m: jsonpickle.decode(m.decode("utf-8")),
+    )
+
+    # Start up producer
+    producer = KafkaProducer(
+        bootstrap_servers="localhost:9092",
+        value_serializer=lambda v: jsonpickle.encode(v).encode("utf-8"),
+    )
+
+    frameDetails = FrameDetails(name="redaction", topic=args.topic)
+    redactImages(consumer, producer, frameDetails, args.redactedObjects)

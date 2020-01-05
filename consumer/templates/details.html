@@ -1,12 +1,26 @@
 {% extends "layout.html" %}
 {% block content %}
+<h2> ImageAI Details</h2>
+<p>Recognition Speed: <span id="speed"></span> - Recognition Average:<span id="average"></span></p>
 <button id="pause_button" class="btn btn-default btn-primary">Pause</button>
-<p>Processed Image: <span id="imageai_time"></span></p>
-<p>Source Image: <span id="source_time"></span></p>
-<div>
-  <img id="imageai" src="" class="img-responsive" alt="Responsive image">
+<div class="row">
+  <div class="col-xs-6">
+    <p>Original Image: <span id="from_frame_reference"></span> - <span id="from_time"></span></p>
+    <div>
+      <img id="from_image" src="" class="img-responsive" alt="Responsive image">
+    </div>
+  </div>
+  <div class="col-xs-6">
+    <p>Processed Image: <span id="to_frame_reference"></span> - <span id="to_time"></span></p>
+    <div>
+      <img id="to_image" src="" class="img-responsive" alt="Responsive image">
+    </div>
+  </div>
 </div>
 <p>Image Details</p>
+<div>
+  <p><span id="detected"></span></p>
+</div>
 <div class="table-responsive">
   <table class="table table-striped table-dark">
     <thead>
@@ -27,17 +41,8 @@
     </tbody>
   </table>
 </div>
-<p> Feature Details</p>
-<p>Identity [person, bicycle, car, motorcycle, airplane,
-  bus, train, truck, boat, traffic light, fire hydrant, stop_sign,
-  parking meter, bench, bird, cat, dog, horse, sheep, cow, elephant, bear, zebra,
-  giraffe, backpack, umbrella, handbag, tie, suitcase, frisbee, skis, snowboard,
-  sports ball, kite, baseball bat, baseball glove, skateboard, surfboard, tennis racket,
-  bottle, wine glass, cup, fork, knife, spoon, bowl, banana, apple, sandwich, orange,
-  broccoli, carrot, hot dog, pizza, donot, cake, chair, couch, potted plant, bed,
-  dining table, toilet, tv, laptop, mouse, remote, keyboard, cell phone, microwave,
-  oven, toaster, sink, refrigerator, book, clock, vase, scissors, teddy bear, hair dryer,
-  toothbrush]</p>
+
+
 {% endblock %}
 
 {% block scripts %}
@@ -46,6 +51,16 @@
   var socket = io.connect('http://' + document.domain + ':' + location.port);
 
   var update = true;
+  const imageaiObjects = new Set(['person', 'bicycle', 'car', 'motorcycle', 'airplane',
+    'bus', 'train', 'truck', 'boat', 'traffic light', 'fire hydrant', 'stop_sign',
+    'parking meter', 'bench', 'bird', 'cat', 'dog', 'horse', 'sheep', 'cow', 'elephant', 'bear', 'zebra',
+    'giraffe', 'backpack', 'umbrella', 'handbag', 'tie', 'suitcase', 'frisbee', 'skis', 'snowboard',
+    'sports ball', 'kite', 'baseball bat', 'baseball glove', 'skateboard', 'surfboard', 'tennis racket',
+    'bottle', 'wine glass', 'cup', 'fork', 'knife', 'spoon', 'bowl', 'banana', 'apple', 'sandwich', 'orange',
+    'broccoli', 'carrot', 'hot dog', 'pizza', 'donot', 'cake', 'chair', 'couch', 'potted plant', 'bed',
+    'dining table', 'toilet', 'tv', 'laptop', 'mouse', 'remote', 'keyboard', 'cell phone', 'microwave',
+    'oven', 'toaster', 'sink', 'refrigerator', 'book', 'clock', 'vase', 'scissors', 'teddy bear', 'hair dryer',
+    'toothbrush']);
 
   socket.on('connect', function () {
     console.log('connected')
@@ -60,28 +75,46 @@
   socket.on('imageai', function (data) {
     console.log('imageai image received')
     if (update && data) {
-      $("#imageai_time").text(data.time);
-      $("#source_time").text(data.original_time);
-      $("#imageai").attr("src", data.image);
+      $("#from_time").text(data.from.time);
+      $("#from_frame_reference").text(data.from.frame_reference);
+      $("#from_image").attr("src", data.from.image);
+      $("#to_time").text(data.to.time);
+      $("#to_frame_reference").text(data.to.frame_reference);
+      $("#to_image").attr("src", data.to.image);
+      $("#speed").text(data.to.performance.speed);
+      $("#average").text(data.to.performance.average);
+    }
 
-      detailsID = $("#details");
-      detailsID.empty();
-      if (data.details) {
-        row = 1;
-        data.details.forEach(function (detail) {
-          console.log(detail);
-          detailsID.append('<tr><td>' + row++ + '</td>'
-            + '<td>' + detail.name + '</td>'
-            + '<td>' + detail.percentage_probability + '</td>'
-            + '<td>(' + detail.position[0]
-            + ',' + detail.position[1] + '),('
-            + detail.position[2] + ','
-            + detail.position[3] + ')' + '</td></tr>');
-        });
-      }
-      if (update) {
-        socket.emit('get imageai')
-      }
+    detailsID = $("#details");
+    detailsID.empty();
+    if (data.to.details) {
+      row = 1;
+      detectedObjects = new Set();
+      data.to.details.forEach(function (detail) {
+        console.log(detail);
+        detectedObjects.add(detail.name);
+        detailsID.append('<tr><td>' + row++ + '</td>'
+          + '<td>' + detail.name + '</td>'
+          + '<td>' + detail.percentage_probability + '</td>'
+          + '<td>(' + detail.position[0]
+          + ',' + detail.position[1] + '),('
+          + detail.position[2] + ','
+          + detail.position[3] + ')' + '</td></tr>');
+      });
+      detectedID = $("#detected");
+      detectedID.empty();
+
+      detectedObjects.forEach(function (name) {
+        detectedID.append(' <span class="detected">' + name + '</span>');
+      })
+      imageaiObjects.forEach(function (name) {
+        if (!detectedObjects.has(name)) {
+          detectedID.append(' <span>' + name + '</span>');
+        }
+      })
+    }
+    if (update) {
+      socket.emit('get imageai')
     }
   })
 

@@ -4,7 +4,7 @@
 
 <head>
   {% block head %}
-  <title>MobiledgeX Video AI</title>
+  <title>MobiledgeX Introduction</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link href="http://netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap.min.css" rel="stylesheet" media="screen">
   <style type="text/css">
@@ -31,12 +31,16 @@
       text-align: center;
     }
 
-    h2 {
-      color: red;
-    }
-
     h3 {
       font-weight: bold;
+    }
+
+    .detected {
+      color: green;
+    }
+
+    .redacted {
+      color: red;
     }
 
     img {
@@ -75,7 +79,7 @@
         <div class="row">
           <div class="col-xs-12 content">
             {% block heading %}
-            <h1>MobiledgeX Video AI</h1>
+            <h1>MobiledgeX Introduction</h1>
             {% endblock %}
             {% block content %}{% endblock %}
           </div>
