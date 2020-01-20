@@ -1,0 +1,202 @@
+{% extends "layout.html" %}
+
+{% block head %}
+{{ super() }}
+<style type="text/css">
+  #video {
+    border: 1px solid black;
+    box-shadow: 2px 2px 3px black;
+    width: 100%;
+  }
+
+  #photo {
+    border: 1px solid black;
+    box-shadow: 2px 2px 3px black;
+    width: 100%;
+  }
+
+  #canvas {
+    display: none;
+  }
+
+  .camera {
+    width: 100%;
+    display: inline-block;
+  }
+
+  .output {
+    width: 100%;
+    display: inline-block;
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="contentarea">
+  <h1>
+    MobiledgeX WebRTC Producer
+  </h1>
+  <div>
+    <div class="form-group">
+      <label for="name"> Name</label>
+      <input type="text" class="form-control" id="name" name="name" value="webrtc-camera">
+    </div>
+    <div class="form-group">
+      <label for="frame_rate">Frame Rate (ms)</label>
+      <input type="int" class="form-control" id="frame_rate" name="frame_rate" value="3000">
+    </div>
+    <div class="form-group">
+      <label for="topic">Topic</label>
+      <input type="text" class="form-control" id="topic" name="topic" value="SOURCE_FRAME">
+    </div>
+    <button id="startbutton" class="btn btn-default">Start</button>
+    </form>
+  </div>
+  <div class="camera">
+    <video id="video">Video stream not available.</video>
+  </div>
+  <canvas id="canvas">
+  </canvas>
+  <div class="output">
+    <img id="photo" alt="The screen capture will appear in this box.">
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+{{ super() }}
+<script src="/static/js/adapter-latest.js"></script>
+<script type="text/javascript">
+  // The width and height of the captured photo. We will set the
+  // width to the value defined here, but the height will be
+  // calculated based on the aspect ratio of the input stream.
+  /*
+  var width = 320;    // We will scale the photo width to this
+  var height = 0;     // This will be computed based on the input stream
+  */
+  // |streaming| indicates whether or not we're currently streaming
+  // video from the camera. Obviously, we start at false.
+
+  var streaming = false;
+
+  // The various HTML elements we need to configure or control. These
+  // will be set by the startup() function.
+
+  var video = null;
+  var canvas = null;
+  var photo = null;
+  var startbutton = null;
+  var startbutton = null;
+
+  var sendFrames = false;
+  var frameRate = 3000;
+  var name = null;
+  var topic = null;
+  var frameCount = 1;
+  var intervalId = null;
+
+  function startup() {
+    video = document.getElementById('video');
+    canvas = document.getElementById('canvas');
+    photo = document.getElementById('photo');
+    startbutton = document.getElementById('startbutton');
+
+    navigator.mediaDevices.getUserMedia({ video: true, audio: false })
+      .then(function (stream) {
+        video.srcObject = stream;
+        video.play();
+      })
+      .catch(function (err) {
+        console.log("An error occurred: " + err);
+      });
+
+    video.addEventListener('canplay', function (ev) {
+      if (!streaming) {
+        streaming = true;
+      }
+    }, false);
+
+    startbutton.addEventListener('click', function (event) {
+      console.log("setting controlFrameSending");
+      if (sendFrames === true) {
+        startbutton.textContent = 'Start';
+        clearInterval(intervalId);
+        sendFrames = false
+        clearphoto();
+      } else {
+        startbutton.textContent = 'Pause';
+        name = $('#name').val();
+        topic = $('#topic').val();
+        frameRate = $('#frame_rate').val();
+        intervalId = setInterval(sendFrame, frameRate);
+        sendFrames = true
+      }
+      event.preventDefault(); // To prevent following the link (optional)
+    });
+  }
+
+  // Fill the photo with an indication that none has been
+  // captured.
+
+  function clearphoto() {
+    var context = canvas.getContext('2d');
+
+    context.fillStyle = "#AAA";
+    context.fillRect(0, 0, canvas.width, canvas.height);
+
+    var data = canvas.toDataURL('image/png');
+    photo.setAttribute('src', data);
+  }
+
+  // Capture a photo by fetching the current contents of the video
+  // and drawing it into a canvas, then converting that to a PNG
+  // format data URL. By drawing it on an offscreen canvas and then
+  // drawing that to the screen, we can change its size and/or apply
+  // other changes before drawing it.
+
+  function takepicture() {
+    var context = canvas.getContext('2d');
+    canvas.width = video.videoWidth;
+    canvas.height = video.videoHeight;
+    context.drawImage(video, 0, 0, video.videoWidth, video.videoHeight);
+
+    var data = canvas.toDataURL('image/jpeg');
+    photo.setAttribute('src', data);
+
+    return data;
+  }
+
+
+  // Set up our event listener to run the startup process
+  // once loading is complete.
+  window.addEventListener('load', startup, false);
+
+  var socket = io.connect('http://' + document.domain + ':' + location.port);
+
+  socket.on('connect', function () {
+    console.log('connected')
+  })
+
+  socket.on('frame ack', function () {
+    console.log('fram ack')
+  })
+
+  function sendFrame() {
+
+    if (sendFrame) {
+      let imageURI = null;
+      console.log('send Frame...')
+      imageURI = takepicture();
+      socket.emit('frame', {
+        'name': name,
+        'topic': topic,
+        'frameRate': frameRate,
+        'frameReference': frameCount++,
+        'imageURI': imageURI,
+      })
+    }
+  }
+
+
+</script>
+{% endblock %}
