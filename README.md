@@ -221,3 +221,20 @@ python app.py
 ```
 
 To view the result go to [https://localhost:5000](https://localhost:5000)
+
+## Advanced
+
+![Advanced Configuration Options](advanced.png "Advanced Configuration Options")
+
+With no command arguments it is easy to instantiate the default image production chain.  By adding command arguments it is possible to construct very complicated image processing chains with many combinations of multiple producers, filters and outputs.  For example all video cameras in a retail store can be published under the same topic and all feeds processed in combination to find total unique visitors, versus unique visitors per camera.  
+
+### WebRTC Producer
+Also an additional producer can be found in the webrtc_producer that uses webrtc and the browser as the video source rather than an RTSP, RTMP or macbook camera as the feed.
+
+```bash
+cd webrtc_producer
+. venv/bin/activate
+python app.py
+```
+
+To start the webrtc_producer go to [https://localhost:8080](https://localhost:8080)
