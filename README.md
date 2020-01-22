@@ -191,7 +191,7 @@ optional arguments:
   -n NAME, --name NAME  set the display name of this object detection process,
                         defaults to "imageaiProcessor" if missing
 
-$ python redactionProcessor.py -h
+$ python redaction.py -h
 usage: redaction [-h] [-t TOPIC] [-i INPUT]
                  [redactedObjects [redactedObjects ...]]
 
@@ -230,6 +230,15 @@ With no command arguments it is easy to instantiate the default image production
 
 ### WebRTC Producer
 Also an additional producer can be found in the webrtc_producer that uses webrtc and the browser as the video source rather than an RTSP, RTMP or macbook camera as the feed.
+
+#### Install
+
+```bash
+cd webrtc_producer
+chmod 755 install.sh
+./install.sh
+cd ..
+```
 
 ```bash
 cd webrtc_producer
