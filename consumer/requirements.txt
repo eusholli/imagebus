@@ -5,7 +5,7 @@ autopep8==1.4.4
 Click==7.0
 dnspython==1.16.0
 dominate==2.4.0
-eventlet==0.25.1
+eventlet==0.31.0
 Flask==1.1.1
 Flask-Debug==0.4.3
 Flask-SocketIO==4.2.1
