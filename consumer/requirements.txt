@@ -21,7 +21,7 @@ MarkupSafe==1.1.1
 mccabe==0.6.1
 monotonic==1.5
 numpy==1.17.4
-opencv-contrib-python==4.1.2.30
+opencv-contrib-python==4.2.0.32
 pathspec==0.6.0
 pep8==1.7.1
 pycodestyle==2.5.0
