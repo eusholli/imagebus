@@ -11,7 +11,7 @@ kafka-python==1.4.7
 lazy-object-proxy==1.4.3
 MarkupSafe==1.1.1
 mccabe==0.6.1
-numpy==1.17.4
+numpy==1.22.0
 opencv-contrib-python==4.1.2.30
 pycodestyle==2.5.0
 pylint==2.4.4
